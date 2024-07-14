@@ -20,6 +20,7 @@ router.post("/signup", async (req, res) => {
         success: false,
         message: "User already exists",
       });
+      // throw new Error("User already exists");
     } else {
       try {
         //hash password
