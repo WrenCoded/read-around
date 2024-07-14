@@ -5,10 +5,8 @@ import prisma from "../db/index.js";
 
 const router = express.Router();
 
-
 router.post("/signup", async (req, res) => {
   try {
-    //find
     const user = await prisma.user.findFirst({
       where: {
         email: req.body.email,
@@ -20,22 +18,30 @@ router.post("/signup", async (req, res) => {
         success: false,
         message: "User already exists",
       });
-      // throw new Error("User already exists");
     } else {
       try {
-        //hash password
         const hashedPassword = await argon2.hash(req.body.password);
-
-        //create new user in db
         const newUser = await prisma.user.create({
           data: {
             email: req.body.email,
             password: hashedPassword,
+            username: req.body.username,
           },
         });
         if (newUser) {
+          const token = jwt.sign(
+            {
+              user: {
+                id: newUser.id,
+                email: newUser.email,
+              },
+            },
+            process.env.SECRET_KEY,
+            { expiresIn: "1h" }
+          );
           res.status(201).json({
             success: true,
+            token,
           });
         } else {
           res.status(500).json({
@@ -58,37 +64,51 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-
-router.post("/login", async (req, res) => {
+router.post("/login", async (request, response) => {
   try {
     const foundUser = await prisma.user.findFirstOrThrow({
-      //find the user in the db whose email matches the one the typed into the login form
       where: {
-        email: req.body.email,
+        email: request.body.email,
       },
     });
+
     try {
       const verifiedPassword = await argon2.verify(
         foundUser.password,
-        req.body.password
+        request.body.password
       );
-      const token = jwt.sign(
-        {
-          user: {
+
+      if (verifiedPassword) {
+        const token = jwt.sign(
+          {
             email: foundUser.email,
             id: foundUser.id,
           },
-        },
-        "secretKey"
-      );
-      res.status(200).json({
-        success: true,
-        token,
+          process.env.SECRET_KEY
+        );
+
+        response.status(200).json({
+          success: true,
+          token,
+        });
+      } else {
+        response.status(401).json({
+          success: false,
+          message: "Wrong username or password",
+        });
+      }
+    } catch (e) {
+      response.status(500).json({
+        success: false,
+        message: "Something went wrong",
       });
-    } catch (err) {}
-  } catch (err) {}
+    }
+  } catch (e) {
+    response.status(401).json({
+      success: false,
+      message: "Wrong username or password",
+    });
+  }
 });
-
-
 
 export default router;

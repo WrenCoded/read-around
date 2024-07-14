@@ -12,7 +12,11 @@ const app = express();
 
 //Adds JSON middleware so the server can understand the json data that gets sent to it
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", 
+  })
+);
 setupJWTStrategy(passport);
 
 app.use("/auth", authRoutes);

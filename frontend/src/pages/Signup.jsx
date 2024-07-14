@@ -1,51 +1,53 @@
-import { useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { Form, Button} from "react-bootstrap"
+import { useNavigate } from "react-router-dom";
+import { Form, Button } from "react-bootstrap";
+import { AuthContext } from "../AuthContext";
 
 const BASE_URL = "http://localhost:8080";
 
-export default function SignupPage(){
+export default function SignupPage() {
+  const { isLoggedIn, login } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [registered, setRegistered] = useState("false");
-  const [userExists, setUserExists] = useState(false);
+  const [username, setUsername] = useState("");
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/user-profile"); 
+    }
+  }, [isLoggedIn, navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    axios
-      .post(`${BASE_URL}/auth/signup`, {
+    try {
+      const result = await axios.post(`${BASE_URL}/auth/signup`, {
         email,
         password,
-      })
-      .then((result) => {
-        setRegistered(true)
-        const userToken = "userToken";
-        localStorage.setItem(userToken, result.data.token);
-        const token = localStorage.getItem(userToken);
-        if (token) {
-    
-          console.log(result.data);
-        } else {
-          throw new Error("Failed to store token.");
-        }
-      })
-      .catch((err) =>{
-         if (err.response && err.response.status === 401) {
-           console.error("User already exists");
-           setRegistered(false)
-           setUserExists(true)
-         } else {
-           console.error("Something went wrong");
-         }
-      })
-
+        username
+      });
+      login(result.data.token); // Assuming the token is returned upon signup
+      navigate("/user-profile"); // Redirect to user profile
+    } catch (err) {
+      console.error(err.response ? err.response.data : err.message);
+    }
   };
 
   return (
     <>
-      <h1>Sign up</h1>
-      <Form onSubmit={(e) => handleSubmit(e)}>
-        {/* email */}
+      <h1>Signup</h1>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="formBasicUsername">
+          <Form.Label>Username</Form.Label>
+          <Form.Control
+            type="text"
+            name="username"
+            value={username} 
+            onChange={(e) => setUsername(e.target.value)} 
+            placeholder="Enter username"
+          />
+        </Form.Group>
         <Form.Group controlId="formBasicEmail">
           <Form.Label>Email address</Form.Label>
           <Form.Control
@@ -57,7 +59,6 @@ export default function SignupPage(){
           />
         </Form.Group>
 
-        {/* password */}
         <Form.Group controlId="formBasicPassword">
           <Form.Label>Password</Form.Label>
           <Form.Control
@@ -68,28 +69,10 @@ export default function SignupPage(){
             placeholder="Password"
           />
         </Form.Group>
-
-        {/* submit button */}
-        <Button
-          variant="primary"
-          type="submit"
-          onClick={(e) => handleSubmit(e)}
-        >
-          Sign up
+        <Button variant="primary" type="submit">
+          Sign Up
         </Button>
       </Form>
-      {/* display success message */}
-      {registered === true ? (
-        <p className="text-success">You Are Registered Successfully</p>
-      ) : userExists === true ? (
-        <p className="text-danger">User Already Exists</p>
-      ) : null}
-      {/* display default error message */}
-      {registered === false && userExists === false && (
-        <p className="text-danger">Something went wrong</p>
-      )}
     </>
   );
-};
-
-
+}

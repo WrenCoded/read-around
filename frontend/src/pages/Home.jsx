@@ -6,8 +6,7 @@ export default function Home() {
       <Row>
         <Col>
           <h1 className="text-center">Welcome to Our Website</h1>
-          <div className="container d-flex justify-content-center mt-4 space-evenly
-          ">
+          <div className="container d-flex justify-content-center mt-4 space-evenly">
             <Button variant="primary" href="/signup" className="mr-5">
               Sign Up
             </Button>
