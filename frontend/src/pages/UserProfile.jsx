@@ -4,7 +4,8 @@ import { Button, Modal, Card, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import AddBookForm from "../components/AddBookForm";
 import BookCard from "../components/BookCard.jsx";
-import { fetchUserProfile, refreshBooks, deleteBook } from "./helpers";
+import EditBookForm from "../components/EditBookForm";
+import { fetchUserProfile, refreshBooks, deleteBook, updateBook } from "./helpers";
 
 
 
@@ -14,12 +15,15 @@ const UserProfile = () => {
   const userId = getUserId(userToken);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [show, setShow] = useState(false);
+const [showAddBookModal, setShowAddBookModal] = useState(false);
+const [showEditBookModal, setShowEditBookModal] = useState(false);
   const [isBookAdded, setIsBookAdded] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null)
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-
+const handleClose = () => {
+  setShowAddBookModal(false);
+  setShowEditBookModal(false);
+};
    const fetchUserProfileData = async (token) => {
      try {
        const userData = await fetchUserProfile(token);
@@ -36,16 +40,35 @@ const UserProfile = () => {
     refreshBooks(userToken, setUser);
   }, [userToken]);
 
-  const handleAddBook = () => {
-    setIsBookAdded(true);
-  };
 
   const handleRefreshBooks = () => {
     setIsBookAdded(false);
     refreshBooks(userToken, setUser);
   };
 
+const handleUpdateBooks = async (bookId, updatedBookData) => {
+  console.log("Updating book:", updatedBookData);
+  console.log("Using token:", userToken);
+  try {
+    await updateBook(userToken, bookId, updatedBookData);
+    setUser((prevUser) => ({
+      ...prevUser,
+      books: prevUser.books.map((book) =>
+        book.id === bookId ? updatedBookData : book
+      ),
+    }));
+  } catch (error) {
+    console.error("Error updating book:", error.response);
+  }
+};
+  const handleShowAddBookModal = () => {
+    setShowAddBookModal(true);
+  };
 
+  const handleShowEditBookModal = (book) => {
+    setSelectedBook(book);
+    setShowEditBookModal(true);
+  };
 const handleDelete = async (userToken, bookId) => {
   console.log("Deleting book with ID:", bookId);
   console.log("Using token:", userToken);
@@ -87,7 +110,7 @@ const handleDelete = async (userToken, bookId) => {
           <Col md={12}>
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h2 className="mb-0">Your Books</h2>
-              <Button variant="primary" onClick={handleShow}>
+              <Button variant="primary" onClick={handleShowAddBookModal}>
                 Add Book
               </Button>
             </div>
@@ -96,7 +119,12 @@ const handleDelete = async (userToken, bookId) => {
               {user.books.map((book) => (
                 <Col md={4} key={book.id}>
                   <div className="book-card">
-                    <BookCard book={book} handleDelete={handleDelete} userToken={userToken}/>
+                    <BookCard
+                      book={book}
+                      handleDelete={handleDelete}
+                      userToken={userToken}
+                      handleShowEditBookModal={handleShowEditBookModal} 
+                    />
                   </div>
                 </Col>
               ))}
@@ -106,12 +134,31 @@ const handleDelete = async (userToken, bookId) => {
       </div>
 
       {/* Modal for Adding a Book */}
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={showAddBookModal} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Add a Book</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <AddBookForm refreshBooks={handleRefreshBooks} handleClose={handleClose} />
+          <AddBookForm
+            refreshBooks={handleRefreshBooks}
+            handleClose={handleClose}
+          />
+        </Modal.Body>
+      </Modal>
+
+      {/* Modal for updating a Book */}
+      <Modal show={showEditBookModal} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit a Book</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedBook && (
+            <EditBookForm
+              book={selectedBook}
+              handleUpdateBook={handleUpdateBooks}
+              handleClose={handleClose}
+            />
+          )}
         </Modal.Body>
       </Modal>
     </Container>

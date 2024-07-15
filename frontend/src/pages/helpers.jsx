@@ -44,3 +44,21 @@ export const deleteBook = async (userToken, bookId) => {
     throw error;
   }
 };
+
+export const updateBook = async (userToken, bookId, updatedBookData) => {
+  try {
+    const response = await axios.put(
+      `http://localhost:8080/books/${bookId}`,
+      updatedBookData,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating book:", error.response);
+    throw error;
+  }
+};

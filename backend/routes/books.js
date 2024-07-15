@@ -106,4 +106,29 @@ router.delete('/:id', authenticateToken, checkBookOwner, async (req, res) => {
   }
 });
 
+
+
+router.put(
+  "/books/:id",
+  authenticateToken,
+  checkBookOwner,
+  async (req, res) => {
+    const bookId = req.params.id;
+    const updatedData = req.body; // Get the updated data from the request body
+
+    try {
+      const updatedBook = await prisma.book.update({
+        where: { id: bookId },
+        data: updatedData,
+      });
+      res.status(200).json(updatedBook);
+    } catch (error) {
+      console.error("Error updating book:", error);
+      res
+        .status(500)
+        .json({ message: "Error updating book", error: error.message });
+    }
+  }
+);
+
 export default router;
