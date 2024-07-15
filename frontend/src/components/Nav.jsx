@@ -21,7 +21,7 @@ function NavComponent() {
           <Nav className="ms-auto">
             {" "}
             {/* Align items to the right */}
-            <Nav.Link href="/home" className="mx-2">
+            <Nav.Link href="/" className="mx-2">
               Home
             </Nav.Link>
             {isLoggedIn ? (
@@ -29,7 +29,7 @@ function NavComponent() {
                 <Nav.Link href="/user-profile" className="mx-2">
                   User Profile
                 </Nav.Link>
-                <Nav.Link href="/home" onClick={handleLogout} className="mx-2">
+                <Nav.Link href="/" onClick={handleLogout} className="mx-2">
                   Logout
                 </Nav.Link>
               </>

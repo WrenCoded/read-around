@@ -12,11 +12,12 @@ import MainLayout from "./pages/MainLayout";
 import Protected from "./components/Protected";
 import UserProfile from "./pages/UserProfile";
 import Home from "./pages/Home";
+import AddBookForm from "./components/AddBookForm.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<MainLayout />}>
-      <Route path="/home" element={<Home />} />
+    <Route element={<MainLayout />}>
+      <Route path="/" element={<Home />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route element={<Protected />}>

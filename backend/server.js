@@ -10,6 +10,8 @@ dotenv.config()
 //Create an instance of an express application
 const app = express();
 
+
+
 //Adds JSON middleware so the server can understand the json data that gets sent to it
 app.use(express.json());
 app.use(

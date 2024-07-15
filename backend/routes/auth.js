@@ -111,5 +111,44 @@ router.post("/login", async (request, response) => {
   }
 });
 
+
+const authenticate = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+    req.user = decoded.user; // Attach user info to request
+    next();
+  });
+};
+router.get("/user-profile", authenticate, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        books: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong", error });
+  }
+});
+
+
 export default router;
 

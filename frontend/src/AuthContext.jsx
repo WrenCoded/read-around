@@ -16,8 +16,7 @@ function AuthProvider({ children }) {
       setUserToken(storedToken);
       try {
         const decoded = jwtDecode(storedToken);
-        console.log("Token:", storedToken, decoded.toString());
-        setUsername(decoded.username); 
+        setUsername(decoded.user.username); 
       } catch (error) {
         console.error("Token decoding error:", error);
         setUsername(""); 
@@ -30,7 +29,6 @@ function AuthProvider({ children }) {
     setIsLoggedIn(true);
     setUserToken(token);
     const decoded = jwtDecode(token);
-    
     setUsername(decoded.user.username); 
     console.log(username);
     localStorage.setItem("userToken", token);
@@ -43,6 +41,12 @@ function AuthProvider({ children }) {
     localStorage.removeItem("userToken");
   }
 
+  function getUserId(token) {
+    if (!token) return null;
+    const decoded = jwtDecode(token);
+    return decoded.user._id;
+  }
+
   const authValue = {
     isLoggedIn,
     username,
@@ -50,6 +54,7 @@ function AuthProvider({ children }) {
     userToken,
     login,
     logout,
+    getUserId,
   };
 
   return (
