@@ -30,7 +30,9 @@ function AuthProvider({ children }) {
     setIsLoggedIn(true);
     setUserToken(token);
     const decoded = jwtDecode(token);
-    setUsername(decoded.username); 
+    
+    setUsername(decoded.user.username); 
+    console.log(username);
     localStorage.setItem("userToken", token);
   }
 

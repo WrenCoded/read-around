@@ -36,43 +36,8 @@ export default function LoginPage() {
       }
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
-    }const handleSubmit = (e) => {
-      e.preventDefault();
-      alert("Submited");
-      axios
-        .post(`localhost:8080/auth/signup`, {
-          email,
-          password,
-        })
-        .then((result) => {
-          const userToken = "userToken";
-          localStorage.setItem(userToken, result.data.token);
-          const token = localStorage.getItem(userToken);
-          if (token) {
-            console.log(result.data.user);
-            navigate("/app/user-profile");
-
-            // Clear form fields after successful signup
-            setEmail("");
-            setPassword("");
-
-            // Display success message
-            alert("Signup successful!");
-
-            // Redirect to the home page after signup
-            history.push("/");
-
-            // Clear local storage token after successful signup
-            localStorage.removeItem(userToken);
-
-            // Logout user if token is removed successfully
-          } else {
-            throw new Error("Failed to store token.");
-          }
-        })
-        .catch((err) => console.error(err));
-    };
-  };
+    
+  };}
 
   return (
     <>

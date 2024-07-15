@@ -4,6 +4,8 @@ import { AuthContext } from "../AuthContext";
 export default function UserProfile() {
   const { isLoggedIn, username } = useContext(AuthContext);
 
+  console.log(username);
+
   if (!isLoggedIn) {
     return <h1>Please log in to view your profile.</h1>;
   }

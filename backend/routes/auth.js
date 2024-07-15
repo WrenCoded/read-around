@@ -7,59 +7,53 @@ const router = express.Router();
 
 router.post("/signup", async (req, res) => {
   try {
+    // Check if user already exists
     const user = await prisma.user.findFirst({
-      where: {
-        email: req.body.email,
-      },
+      where: { email: req.body.email },
     });
-    //if the user has already signed up with that email, tell them they are already in the DB
+
     if (user) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         message: "User already exists",
       });
-    } else {
-      try {
-        const hashedPassword = await argon2.hash(req.body.password);
-        const newUser = await prisma.user.create({
-          data: {
-            email: req.body.email,
-            password: hashedPassword,
-            username: req.body.username,
-          },
-        });
-        if (newUser) {
-          const token = jwt.sign(
-            {
-              user: {
-                id: newUser.id,
-                email: newUser.email,
-              },
-            },
-            process.env.SECRET_KEY,
-            { expiresIn: "1h" }
-          );
-          res.status(201).json({
-            success: true,
-            token,
-          });
-        } else {
-          res.status(500).json({
-            success: false,
-            message: "Something went wrong",
-          });
-        }
-      } catch (err) {
-        res.status(500).json({
-          success: false,
-          message: "Something went wrong",
-        });
-      }
     }
-  } catch (e) {
+
+    // Hash the password
+    const hashedPassword = await argon2.hash(req.body.password);
+
+    // Create a new user
+    const newUser = await prisma.user.create({
+      data: {
+        email: req.body.email,
+        password: hashedPassword,
+        username: req.body.username,
+      },
+    });
+
+    // Generate a JWT token
+    const token = jwt.sign(
+      {
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          username: newUser.username,
+        },
+      },
+      process.env.SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+
+    res.status(201).json({
+      success: true,
+      token,
+    });
+  } catch (err) {
+    console.error("Signup error:", err); // Log the error for debugging
     res.status(500).json({
       success: false,
       message: "Something went wrong",
+      error: err.message,
     });
   }
 });
@@ -81,10 +75,14 @@ router.post("/login", async (request, response) => {
       if (verifiedPassword) {
         const token = jwt.sign(
           {
-            email: foundUser.email,
-            id: foundUser.id,
+            user: {
+              email: foundUser.email,
+              id: foundUser.id,
+              username: foundUser.username, 
+            },
           },
-          process.env.SECRET_KEY
+          process.env.SECRET_KEY,
+          { expiresIn: "1h" }
         );
 
         response.status(200).json({
@@ -101,14 +99,17 @@ router.post("/login", async (request, response) => {
       response.status(500).json({
         success: false,
         message: "Something went wrong",
+        error: err.message,
       });
     }
   } catch (e) {
     response.status(401).json({
       success: false,
       message: "Wrong username or password",
+      error: err.message,
     });
   }
 });
 
 export default router;
+
