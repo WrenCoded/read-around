@@ -3,11 +3,9 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { AuthContext } from "../AuthContext";
-import "./NavComponent.css"; // Import the custom CSS
 
 function NavComponent() {
   const { isLoggedIn, logout } = useContext(AuthContext);
-
   const handleLogout = () => {
     logout();
   };
@@ -34,9 +32,14 @@ function NavComponent() {
                 </Nav.Link>
               </>
             ) : (
-              <Nav.Link href="/login" className="mx-2">
-                Login
-              </Nav.Link>
+              <>
+                <Nav.Link href="/login" className="mx-2">
+                  Login
+                </Nav.Link>
+                <Nav.Link href="/signup" className="mx-2">
+                  Signup
+                </Nav.Link>
+              </>
             )}
           </Nav>
         </Navbar.Collapse>
