@@ -23,7 +23,11 @@ export default function AddBookForm({ refreshBooks, handleClose }) {
       console.log("Book added");
       setTitle("");
       setAuthor("");
-      refreshBooks(); // Refresh the book list
+      refreshBooks(); // Call the refreshBooks function to refresh the book list
+      handleClose(); // Close the modal
+    } catch (err) {
+      console.error("Error adding book:", err);
+    } finally {
       handleClose(); // Close the modal
     } catch (err) {
       console.error("Error adding book:", err);
