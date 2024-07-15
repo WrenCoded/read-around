@@ -3,44 +3,35 @@ import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { AuthContext } from "../AuthContext";
 
-export default function AddBookForm() {
+export default function AddBookForm({ refreshBooks, handleClose }) {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
-  const { userToken, getUserId } = useContext(AuthContext);
+  const { userToken } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting form with data:", { title, author });
-    console.log("Using token:", userToken);
-
-    const userId = getUserId(userToken);
-
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8080/books",
-        { title, author, owner: userId },
+        { title, author },
         {
           headers: {
             Authorization: `Bearer ${userToken}`,
-            "Content-Type": "application/json",
           },
         }
       );
-      console.log("Book added:", response.data);
+      console.log("Book added");
       setTitle("");
       setAuthor("");
+      refreshBooks(); // Refresh the book list
+      handleClose(); // Close the modal
     } catch (err) {
       console.error("Error adding book:", err);
-      console.error(
-        "Error details:",
-        err.response ? err.response.data : err.message
-      );
     }
   };
 
   return (
     <>
-      <h1>Add a Book</h1>
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="formBookTitle">
           <Form.Label>Title</Form.Label>
