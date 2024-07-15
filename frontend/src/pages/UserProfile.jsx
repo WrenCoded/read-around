@@ -4,6 +4,7 @@ import { Button, Modal, Card, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import AddBookForm from "../components/AddBookForm";
 import BookCard from "../components/BookCard.jsx";
+import { fetchUserProfile, refreshBooks, deleteBook } from "./helpers";
 
 
 
@@ -14,50 +15,44 @@ const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [show, setShow] = useState(false);
+  const [isBookAdded, setIsBookAdded] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const fetchUserProfile = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:8080/auth/user-profile",
-        {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        }
-      );
-      setUser(response.data);
-      console.log("User profile fetched:", response.data);
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const refreshBooks = async () => {
-    if (userToken) {
-      const response = await axios.get(
-        "http://localhost:8080/books",
-
-        {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        }
-      );
-      setUser((prevUser) => ({ ...prevUser, books: response.data }));
-    }
-  };
+   const fetchUserProfileData = async (token) => {
+     try {
+       const userData = await fetchUserProfile(token);
+       setUser(userData);
+     } catch (error) {
+       console.error("Error fetching user profile data:", error.response);
+     } finally {
+       setLoading(false);
+     }
+   };
 
   useEffect(() => {
-    if (userToken) {
-      fetchUserProfile();
-      refreshBooks(); // Fetch user's books on component mount
-    }
+    fetchUserProfileData(userToken);
+    refreshBooks(userToken, setUser);
   }, [userToken]);
+
+
+const handleDelete = async (userToken, bookId) => {
+  console.log("Deleting book with ID:", bookId);
+  console.log("Using token:", userToken);
+
+  try {
+    await deleteBook(userToken, bookId);
+    setUser((prevUser) => ({
+      ...prevUser,
+      books: prevUser.books.filter((book) => book.id !== bookId),
+    }));
+  } catch (error) {
+    console.error("Error deleting book:", error.response);
+  }
+};
+
+
 
   if (loading) return <p>Loading...</p>;
   if (!user) return <p>No user data available</p>;
@@ -92,7 +87,7 @@ const UserProfile = () => {
               {user.books.map((book) => (
                 <Col md={4} key={book.id}>
                   <div className="book-card">
-                    <BookCard book={book} />
+                    <BookCard book={book} handleDelete={handleDelete} userToken={userToken}/>
                   </div>
                 </Col>
               ))}
