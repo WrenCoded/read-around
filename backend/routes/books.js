@@ -21,12 +21,13 @@ const authenticateToken = (req, res, next) => {
 // Middleware to check if the authenticated user is the owner of the book
 const checkBookOwner = async (req, res, next) => {
   const bookId = req.params.id;
+  console.log("Book owner id", req.user.user.id);
   try {
     const book = await prisma.book.findUnique({
       where: { id: bookId },
     });
 
-    if (!book || book.ownerId !== req.user.id) {
+    if (!book || book.ownerId !== req.user.user.id) {
       return res.status(404).json({ message: 'Book not found or not authorized' });
     }
 
@@ -46,6 +47,7 @@ router.get("/", authenticateToken, async (req, res) => {
       },
     });
     res.status(200).json(books);
+    console.log('get /books route complete');
   } catch (error) {
     console.error("Error fetching books:", error);
     res
@@ -86,16 +88,17 @@ router.post("/", authenticateToken, async (req, res) => {
 
 
 // Delete a book for the authenticated user
-router.delete('/books/:id', authenticateToken, checkBookOwner, async (req, res) => {
+router.delete('/:id', authenticateToken, checkBookOwner, async (req, res) => {
   const bookId = req.params.id;
 
-  console.log('bookId:', bookId);
+  console.log('deleting bookId:', bookId);
 
   try {
     await prisma.book.delete({
       where: { id: bookId },
     });
 
+    console.log('Book deleted:', bookId);
     res.status(200).json({ message: 'Book deleted successfully' });
   } catch (error) {
     console.error('Error deleting book:', error);

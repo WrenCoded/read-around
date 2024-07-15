@@ -2,9 +2,13 @@
 import { Card, Button } from "react-bootstrap";
 import { FaPencilAlt, FaRegTrashAlt } from "react-icons/fa";
 
+
+
 export default function BookCard({ book, handleDelete, userToken }) {
     console.log("Book:", book);
     console.log("User Token:", userToken);
+
+    
  
   return (
     <Card className="mb-3">

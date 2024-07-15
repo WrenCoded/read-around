@@ -15,6 +15,7 @@ const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [show, setShow] = useState(false);
+  const [isBookAdded, setIsBookAdded] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
