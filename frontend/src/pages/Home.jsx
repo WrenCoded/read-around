@@ -3,7 +3,7 @@ import { AuthContext } from "../AuthContext";
 import { useContext } from "react";
 
 export default function Home() {
-   const { isLoggedIn, username } = useContext(AuthContext);
+   const { isLoggedIn, username, logout } = useContext(AuthContext);
 
    if (isLoggedIn) {
       return (
@@ -12,7 +12,7 @@ export default function Home() {
             <Col>
               <h1 className="text-center">Welcome, {username}!</h1>
               <div className="container d-flex justify-content-center mt-4 space-evenly gap-3">
-                <Button variant="danger" href="/logout">
+                <Button variant="danger" onClick={logout}>
                   Logout
                 </Button>
                 <Button variant="primary" href="/user-profile">
