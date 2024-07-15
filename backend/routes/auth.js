@@ -127,6 +127,7 @@ const authenticate = (req, res, next) => {
   });
 };
 router.get("/user-profile", authenticate, async (req, res) => {
+  console.log("get user-profile req.user.id",req.user.id);
   try {
     const userId = req.user.id;
     const user = await prisma.user.findUnique({
