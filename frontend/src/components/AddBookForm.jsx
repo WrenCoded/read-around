@@ -3,6 +3,7 @@ import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { AuthContext } from "../AuthContext";
 
+
 export default function AddBookForm({ refreshBooks, handleClose }) {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -23,14 +24,11 @@ export default function AddBookForm({ refreshBooks, handleClose }) {
       console.log("Book added");
       setTitle("");
       setAuthor("");
-      refreshBooks(); // Call the refreshBooks function to refresh the book list
-      handleClose(); // Close the modal
     } catch (err) {
       console.error("Error adding book:", err);
     } finally {
+      refreshBooks(); // Refresh the book list
       handleClose(); // Close the modal
-    } catch (err) {
-      console.error("Error adding book:", err);
     }
   };
 
