@@ -36,32 +36,14 @@ const UserProfile = () => {
     refreshBooks(userToken, setUser);
   }, [userToken]);
 
+  const handleAddBook = () => {
+    setIsBookAdded(true);
+  };
 
-const handleDelete = async (userToken, bookId) => {
-  console.log("Deleting book with ID:", bookId);
-  console.log("Using token:", userToken);
-
-  try {
-    await deleteBook(userToken, bookId);
-    setUser((prevUser) => ({
-      ...prevUser,
-      books: prevUser.books.filter((book) => book.id !== bookId),
-    }));
-  } catch (error) {
-    console.error("Error deleting book:", error.response);
-  }
-};
-
-
-
-   const handleAddBook = () => {
-     setIsBookAdded(true);
-   };
-
-   const handleRefreshBooks = () => {
-     setIsBookAdded(false);
-     refreshBooks(userToken, setUser);
-   };
+  const handleRefreshBooks = () => {
+    setIsBookAdded(false);
+    refreshBooks(userToken, setUser);
+  };
 
 
 const handleDelete = async (userToken, bookId) => {
@@ -114,7 +96,7 @@ const handleDelete = async (userToken, bookId) => {
               {user.books.map((book) => (
                 <Col md={4} key={book.id}>
                   <div className="book-card">
-                    <BookCard book={book} />
+                    <BookCard book={book} handleDelete={handleDelete} userToken={userToken}/>
                   </div>
                 </Col>
               ))}
@@ -129,10 +111,7 @@ const handleDelete = async (userToken, bookId) => {
           <Modal.Title>Add a Book</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <AddBookForm
-            refreshBooks={handleRefreshBooks}
-            handleClose={handleClose}
-          />
+          <AddBookForm refreshBooks={handleRefreshBooks} handleClose={handleClose} />
         </Modal.Body>
       </Modal>
     </Container>
