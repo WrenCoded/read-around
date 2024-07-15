@@ -21,10 +21,10 @@ const authenticateToken = (req, res, next) => {
 // Get all books for authenticated user
 router.get("/", authenticateToken, async (req, res) => {
   try {
-    console.log("Authenticated user ID:", req.user.id);
+    console.log("req.user.id", req.user.user.id);
     const books = await prisma.book.findMany({
       where: {
-        ownerId: req.user.id,
+        ownerId: req.user.user.id,
       },
     });
     res.status(200).json(books);
